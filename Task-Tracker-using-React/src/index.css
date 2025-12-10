@@ -1,112 +1,327 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Minimal Mode - Light Purple Theme */
+    --background: 270 60% 98%;
+    --foreground: 270 30% 15%;
+
+    --card: 270 50% 100%;
+    --card-foreground: 270 30% 15%;
+
+    --popover: 270 50% 100%;
+    --popover-foreground: 270 30% 15%;
+
+    --primary: 270 80% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 40% 92%;
+    --secondary-foreground: 270 60% 35%;
+
+    --muted: 270 30% 94%;
+    --muted-foreground: 270 20% 45%;
+
+    --accent: 280 50% 88%;
+    --accent-foreground: 280 60% 35%;
+
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 270 30% 88%;
+    --input: 270 30% 88%;
+    --ring: 270 80% 45%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --success: 158 64% 52%;
+    --warning: 38 92% 50%;
+    --xp-color: 45 93% 58%;
+    --streak-color: 14 100% 57%;
+    --level-color: 270 80% 45%;
+
+    /* Pastel purple accents */
+    --pastel-mint: 280 40% 92%;
+    --pastel-lavender: 270 60% 90%;
+    --pastel-peach: 300 40% 92%;
+    --pastel-sky: 250 50% 92%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(270 30% 15% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(270 30% 15% / 0.08), 0 2px 4px -2px hsl(270 30% 15% / 0.05);
+    --shadow-lg: 0 10px 15px -3px hsl(270 30% 15% / 0.08), 0 4px 6px -4px hsl(270 30% 15% / 0.05);
+
+    /* Neon colors (available in both modes) */
+    --neon-purple: 270 100% 60%;
+    --neon-cyan: 280 80% 70%;
+    --neon-pink: 300 80% 65%;
+    --neon-blue: 250 90% 60%;
+
+    /* Sidebar */
+    --sidebar-background: 270 60% 98%;
+    --sidebar-foreground: 270 30% 20%;
+    --sidebar-primary: 270 80% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 40% 94%;
+    --sidebar-accent-foreground: 270 60% 30%;
+    --sidebar-border: 270 30% 88%;
+    --sidebar-ring: 270 80% 45%;
+  }
+
+  .dark {
+    /* Engaged Mode - Dark Purple Gamified Theme */
+    --background: 270 50% 5%;
+    --foreground: 270 20% 95%;
+
+    --card: 270 45% 10%;
+    --card-foreground: 270 20% 95%;
+
+    --popover: 270 45% 10%;
+    --popover-foreground: 270 20% 95%;
+
+    --primary: 270 100% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 40% 18%;
+    --secondary-foreground: 270 20% 95%;
+
+    --muted: 270 40% 15%;
+    --muted-foreground: 270 25% 60%;
+
+    --accent: 280 80% 70%;
+    --accent-foreground: 270 50% 5%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 270 40% 20%;
+    --input: 270 40% 20%;
+    --ring: 270 100% 65%;
+
+    /* Neon colors */
+    --neon-purple: 270 100% 65%;
+    --neon-cyan: 280 80% 75%;
+    --neon-pink: 300 90% 65%;
+    --neon-blue: 250 90% 65%;
+
+    /* Glow effects */
+    --glow-purple: 0 0 20px hsl(270 100% 65% / 0.5), 0 0 40px hsl(270 100% 65% / 0.3);
+    --glow-cyan: 0 0 20px hsl(280 80% 75% / 0.5), 0 0 40px hsl(280 80% 75% / 0.3);
+    --glow-pink: 0 0 20px hsl(300 90% 65% / 0.5), 0 0 40px hsl(300 90% 65% / 0.3);
+
+    --xp-color: 45 93% 58%;
+    --streak-color: 14 100% 57%;
+    --level-color: 270 100% 65%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
+
+    /* Sidebar */
+    --sidebar-background: 270 50% 7%;
+    --sidebar-foreground: 270 20% 95%;
+    --sidebar-primary: 270 100% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 40% 15%;
+    --sidebar-accent-foreground: 270 20% 95%;
+    --sidebar-border: 270 40% 20%;
+    --sidebar-ring: 270 100% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Glow effects for engaged mode */
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
+
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
+  }
+
+  .glow-pink {
+    box-shadow: var(--glow-pink);
+  }
+
+  /* Task card animations */
+  .task-card-minimal {
+    @apply bg-card rounded-xl p-4 transition-all duration-200;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .task-card-minimal:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .task-card-engaged {
+    @apply bg-card rounded-xl p-4 transition-all duration-300;
+    border: 1px solid hsl(var(--border));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task-card-engaged::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--neon-purple)), hsl(var(--neon-cyan)), hsl(var(--neon-pink)));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .task-card-engaged:hover::before {
+    opacity: 1;
+  }
+
+  .task-card-engaged:hover {
+    box-shadow: 0 0 30px hsl(var(--neon-purple) / 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Neon button */
+  .btn-neon {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--neon-purple)), hsl(var(--neon-pink)));
+  }
+
+  .btn-neon:hover {
+    box-shadow: 0 0 25px hsl(var(--neon-purple) / 0.6);
+    transform: scale(1.02);
+  }
+
+  /* Progress bar glow */
+  .progress-glow {
+    background: linear-gradient(90deg, hsl(var(--neon-purple)), hsl(var(--neon-cyan)));
+    box-shadow: 0 0 15px hsl(var(--neon-purple) / 0.5);
+  }
+
+  /* Badge styles */
+  .badge-minimal {
+    @apply bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-engaged {
+    @apply px-3 py-1.5 rounded-full text-xs font-semibold;
+    background: linear-gradient(135deg, hsl(var(--neon-purple) / 0.2), hsl(var(--neon-cyan) / 0.2));
+    border: 1px solid hsl(var(--neon-purple) / 0.5);
+    color: hsl(var(--neon-cyan));
+  }
+
+  /* Pulse animation for streak */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(var(--streak-color) / 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(var(--streak-color) / 0.8), 0 0 30px hsl(var(--streak-color) / 0.4);
+    }
+  }
+
+  /* Bounce animation */
+  .bounce-in {
+    animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Slide up animation */
+  .slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  @keyframes slide-up {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Shimmer effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--neon-cyan) / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Float animation for icons */
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+}
+
+/* Theme transition */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-}
-
-.container {
-  max-width: 500px;
-  margin: 30px auto;
-  overflow: auto;
-  min-height: 300px;
-  border: 1px solid steelblue;
-  padding: 30px;
-  border-radius: 5px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.btn {
-  display: inline-block;
-  background: #000;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 15px;
-  font-family: inherit;
-}
-
-.btn:focus {
-  outline: none;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn-block {
-  display: block;
-  width: 100%;
-}
-
-.task {
-  background: #f4f4f4;
-  margin: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.task.reminder {
-  border-left: 5px solid green;
-}
-
-.task h3 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.add-form {
-  margin-bottom: 40px;
-}
-
-.form-control {
-  margin: 20px 0;
-}
-
-.form-control label {
-  display: block;
-}
-
-.form-control input {
-  width: 100%;
-  height: 40px;
-  margin: 5px;
-  padding: 3px 7px;
-  font-size: 17px;
-}
-
-.form-control-check {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.form-control-check label {
-  flex: 1;
-}
-
-.form-control-check input {
-  flex: 2;
-  height: 20px;
-}
-
-footer {
-  margin-top: 30px;
-  text-align: center;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
