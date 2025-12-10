@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useGetTasks, useCreateTask, useUpdateTask, useCompleteTask, useDeleteTask, useToggleReminder, useGetStats } from '@/hooks/use-api';
 
 const GameContext = createContext();
 
@@ -11,18 +12,73 @@ const initialBadges = [
 ];
 
 export function GameProvider({ children }) {
+  // API hooks
+  const { data: tasks = [], isLoading: tasksLoading } = useGetTasks();
+  const { data: stats } = useGetStats();
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+  const completeTaskMutation = useCompleteTask();
+  const deleteTaskMutation = useDeleteTask();
+  const toggleReminderMutation = useToggleReminder();
+
   const [state, setState] = useState({
-    xp: 35,
-    level: 3,
-    streak: 4,
-    tasks: [
-      { id: '1', text: 'Review project requirements', completed: true, createdAt: new Date() },
-      { id: '2', text: 'Design wireframes for new feature', completed: false, createdAt: new Date() },
-      { id: '3', text: 'Set up development environment', completed: false, createdAt: new Date() },
-    ],
+    xp: 0,
+    level: 1,
+    streak: 0,
+    tasks: [],
     badges: initialBadges.map((b, i) => ({ ...b, unlocked: i < 2 })),
     showConfetti: false,
+    isLoading: true,
   });
+
+  // Sync stats to state
+  useEffect(() => {
+    if (stats) {
+      // Calculate level and XP from total points
+      const totalXp = stats.totalPoints;
+      let level = 1;
+      let xp = totalXp;
+      const xpPerLevel = 50;
+      
+      while (xp >= level * xpPerLevel) {
+        xp -= level * xpPerLevel;
+        level += 1;
+      }
+
+      setState(prev => ({
+        ...prev,
+        xp,
+        level,
+      }));
+    }
+  }, [stats]);
+
+  // Sync tasks from API to state - PROPERLY MAP DATABASE FIELDS TO UI FIELDS
+  useEffect(() => {
+    if (Array.isArray(tasks) && tasks.length >= 0) {
+      const mappedTasks = tasks.map(t => {
+        return {
+          id: t._id,
+          text: t.text,
+          completed: t.completed || false,
+          reminder: t.reminder || false,
+          points: t.points || 0,
+          day: t.day || '',
+          date: t.dueDate ? new Date(t.dueDate).toISOString().split('T')[0] : undefined,
+          time: t.time || '',
+          createdAt: t.createdAt,
+          updatedAt: t.updatedAt,
+          _id: t._id,
+        };
+      });
+
+      setState(prev => ({
+        ...prev,
+        tasks: mappedTasks,
+        isLoading: tasksLoading,
+      }));
+    }
+  }, [tasks, tasksLoading]);
 
   const getXpForNextLevel = useCallback(() => state.level * 50, [state.level]);
   const getXpProgress = useCallback(() => (state.xp / getXpForNextLevel()) * 100, [state.xp, getXpForNextLevel]);
@@ -32,78 +88,70 @@ export function GameProvider({ children }) {
     setTimeout(() => setState(prev => ({ ...prev, showConfetti: false })), 3000);
   }, []);
 
-  const addTask = useCallback((task) => {
-  const newTask = {
-    id: Date.now().toString(),
-    completed: false,
-    createdAt: new Date(),
-    ...task, // spread text, date, time
-  };
-  setState(prev => ({ ...prev, tasks: [newTask, ...prev.tasks] }));
-}, []);
+  // Add task via API - CONVERT UI FORMAT TO DATABASE FORMAT
+  const addTask = useCallback((taskData) => {
+    const dueDate = taskData.date ? new Date(`${taskData.date}T00:00:00Z`).toISOString() : null;
+    
+    createTaskMutation.mutate({
+      text: taskData.text,
+      day: taskData.day || '',
+      reminder: taskData.reminder || false,
+      completed: false,
+      points: 0,
+      dueDate: dueDate,
+      time: taskData.time || '',
+    });
+  }, [createTaskMutation]);
 
-const updateTask = useCallback((id, updatedTask) => {
-  setState(prev => ({
-    ...prev,
-    tasks: prev.tasks.map(t => t.id === id ? { ...t, ...updatedTask } : t)
-  }));
-}, []);
+  // Update task via API - CONVERT UI FORMAT TO DATABASE FORMAT
+  const updateTask = useCallback((id, updatedTask) => {
+    const updates = { ...updatedTask };
+    
+    if (updatedTask.date && typeof updatedTask.date === 'string') {
+      updates.dueDate = new Date(`${updatedTask.date}T00:00:00Z`).toISOString();
+      delete updates.date;
+    }
+    
+    updateTaskMutation.mutate({
+      id,
+      updates,
+    });
+  }, [updateTaskMutation]);
 
-
+  // Complete task via API
   const completeTask = useCallback((id) => {
-    setState(prev => {
-      const task = prev.tasks.find(t => t.id === id);
-      if (!task || task.completed) return prev;
-
-      const xpGain = 10;
-      let newXp = prev.xp + xpGain;
-      let newLevel = prev.level;
-      const xpForNextLevel = prev.level * 50;
-
-      if (newXp >= xpForNextLevel) {
-        newLevel += 1;
-        newXp -= xpForNextLevel;
-      }
-
-      const completedCount = prev.tasks.filter(t => t.completed).length + 1;
-
-      const updatedBadges = prev.badges.map(badge => {
-        if (badge.unlocked) return badge;
-        if (badge.id === 'rookie' && completedCount >= 1) return { ...badge, unlocked: true, unlockedAt: new Date() };
-        if (badge.id === 'master' && completedCount >= 10) return { ...badge, unlocked: true, unlockedAt: new Date() };
-        if (badge.id === 'centurion' && prev.xp + xpGain >= 100) return { ...badge, unlocked: true, unlockedAt: new Date() };
-        return badge;
-      });
-
-      return {
-        ...prev,
-        tasks: prev.tasks.map(t => (t.id === id ? { ...t, completed: true } : t)),
-        xp: newXp,
-        level: newLevel,
-        badges: updatedBadges,
-        showConfetti: true,
-      };
+    completeTaskMutation.mutate({
+      id,
+      awardPoints: 10,
     });
 
+    // Show confetti
+    setState(prev => ({ ...prev, showConfetti: true }));
     setTimeout(() => setState(prev => ({ ...prev, showConfetti: false })), 3000);
-  }, []);
+  }, [completeTaskMutation]);
 
+  // Delete task via API
   const deleteTask = useCallback((id) => {
-    setState(prev => ({ ...prev, tasks: prev.tasks.filter(t => t.id !== id) }));
-  }, []);
+    deleteTaskMutation.mutate(id);
+  }, [deleteTaskMutation]);
+
+  // Toggle reminder via API
+  const toggleTaskReminder = useCallback((id, reminder) => {
+    toggleReminderMutation.mutate({ id, reminder });
+  }, [toggleReminderMutation]);
 
   return (
     <GameContext.Provider value={{
-  ...state,
-  addTask,
-  updateTask, // add this
-  completeTask,
-  deleteTask,
-  getXpForNextLevel,
-  getXpProgress,
-  triggerConfetti
-}}>
-
+      ...state,
+      addTask,
+      updateTask,
+      completeTask,
+      deleteTask,
+      toggleTaskReminder,
+      getXpForNextLevel,
+      getXpProgress,
+      triggerConfetti,
+    }}>
       {children}
     </GameContext.Provider>
   );
